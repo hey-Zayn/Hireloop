@@ -4,6 +4,7 @@ const cookieParser = require('cookie-parser');
 const connectDB = require('./Config/Database/connection');
 
 const userRoutes = require('./Routes/User.routes');
+const companyRoutes = require('./Routes/Company.routes');
 const errorHandler = require('./Middlewares/error.middleware');
 
 const app = express();
@@ -21,6 +22,7 @@ app.get('/', (req, res) => {
 });
 
 app.use('/api/v1/users', userRoutes);
+app.use('/api/v1/companies', companyRoutes);
 
 // Global Error Handler
 app.use(errorHandler);
