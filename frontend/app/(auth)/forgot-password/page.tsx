@@ -29,11 +29,14 @@ export default function ForgotPasswordPage() {
       await forgotPassword(email);
       setIsSubmitted(true);
       toast.success("Password reset email sent!");
-    } catch (error: any) {
+    } catch (error) {
+      const err = error as { response?: { data?: { message?: string } } };
       toast.error(
-        error.response?.data?.message || "Failed to send reset email",
+        err.response?.data?.message || "Failed to send reset email",
       );
     }
+
+
   };
 
   if (isSubmitted) {

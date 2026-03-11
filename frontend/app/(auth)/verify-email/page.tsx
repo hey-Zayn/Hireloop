@@ -35,9 +35,12 @@ export default function VerifyEmailPage() {
       await verifyEmail({ email, code });
       toast.success("Email verified successfully! You can now log in.");
       router.push("/login");
-    } catch (error: any) {
-      toast.error(error.response?.data?.message || "Invalid or expired code");
+    } catch (error) {
+      const err = error as { response?: { data?: { message?: string } } };
+      toast.error(err.response?.data?.message || "Invalid or expired code");
     }
+
+
   };
 
   return (

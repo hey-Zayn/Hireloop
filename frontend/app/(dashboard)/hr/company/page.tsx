@@ -28,6 +28,8 @@ import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import Link from "next/link";
 import { Skeleton } from "@/components/ui/skeleton";
+import Image from "next/image";
+
 
 export default function HRCompanyPage() {
   const { user } = useAuthStore();
@@ -65,9 +67,10 @@ export default function HRCompanyPage() {
             No Company Registered
           </h1>
           <p className="text-muted-foreground">
-            You haven't registered your company yet. Registering a company
+            You haven&apos;t registered your company yet. Registering a company
             allows you to post jobs, manage candidates, and build your brand.
           </p>
+
         </div>
         <Button
           size="lg"
@@ -116,12 +119,15 @@ export default function HRCompanyPage() {
         <div className="flex flex-col md:flex-row gap-8 items-start md:items-center relative z-10">
           <div className="size-24 bg-white dark:bg-gray-900 rounded-3xl shadow-xl flex items-center justify-center p-4 border border-primary/10">
             {company?.logo ? (
-              <img
+              <Image
                 src={company.logo}
                 alt={company.name}
+                width={80}
+                height={80}
                 className="w-full h-full object-contain"
               />
             ) : (
+
               <Building2 className="size-12 text-primary" />
             )}
           </div>
@@ -241,11 +247,13 @@ export default function HRCompanyPage() {
                     Joined HireLoop
                   </p>
                   <p className="text-sm font-semibold">
-                    {new Date(company?.createdAt!).toLocaleDateString("en-US", {
+                    {company?.createdAt ? new Date(company.createdAt).toLocaleDateString("en-US", {
                       month: "short",
                       year: "numeric",
-                    })}
+                    }) : "Recently"}
+
                   </p>
+
                 </div>
               </div>
               <div className="flex items-center gap-3">

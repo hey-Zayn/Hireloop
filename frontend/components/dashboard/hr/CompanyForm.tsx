@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
+
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -29,14 +30,16 @@ import {
   Plus,
   X,
 } from "lucide-react";
-import { useCompanyStore } from "@/lib/store/useCompanyStore";
+import { useCompanyStore, type Company } from "@/lib/store/useCompanyStore";
 import { toast } from "sonner";
 
 interface CompanyFormProps {
-  initialData?: any;
+  initialData?: Company | null;
   isEditing?: boolean;
   onSuccess?: () => void;
 }
+
+
 
 const COMPANY_SIZES = [
   "1-10",
@@ -73,8 +76,9 @@ export default function CompanyForm({
   };
 
   const handleSizeChange = (value: string) => {
-    setFormData((prev) => ({ ...prev, size: value }));
+    setFormData((prev) => ({ ...prev, size: value as Company["size"] }));
   };
+
 
   const handleSocialLinkChange = (index: number, value: string) => {
     const newLinks = [...formData.socialLinks];
@@ -90,17 +94,19 @@ export default function CompanyForm({
   };
 
   const removeSocialLink = (index: number) => {
-    const newLinks = formData.socialLinks.filter((_, i) => i !== index);
+    const newLinks = formData.socialLinks.filter((_: string, i: number) => i !== index);
     setFormData((prev) => ({ ...prev, socialLinks: newLinks }));
   };
+
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
       const payload = {
         ...formData,
-        socialLinks: formData.socialLinks.filter((link) => link.trim() !== ""),
+        socialLinks: formData.socialLinks.filter((link: string) => link.trim() !== ""),
       };
+
 
       if (isEditing && initialData?._id) {
         await updateCompany(initialData._id, payload);
@@ -111,10 +117,12 @@ export default function CompanyForm({
       }
 
       if (onSuccess) onSuccess();
-    } catch (error: any) {
-      toast.error(error.response?.data?.message || "Something went wrong");
+    } catch (error) {
+      const err = error as { response?: { data?: { message?: string } } };
+      toast.error(err.response?.data?.message || "Something went wrong");
     }
   };
+
 
   return (
     <Card className="border-primary/10 shadow-lg bg-white/50 backdrop-blur-sm dark:bg-gray-950/50">
@@ -241,7 +249,7 @@ export default function CompanyForm({
               </Button>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-              {formData.socialLinks.map((link, index) => (
+              {formData.socialLinks.map((link: string, index: number) => (
                 <div key={index} className="flex items-center gap-2">
                   <Input
                     placeholder="https://linkedin.com/company/..."
@@ -251,6 +259,7 @@ export default function CompanyForm({
                     }
                     className="bg-primary/5 border-none focus-visible:ring-1 focus-visible:ring-primary/30 h-9"
                   />
+
                   {formData.socialLinks.length > 1 && (
                     <Button
                       type="button"

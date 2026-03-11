@@ -1,7 +1,8 @@
 "use client";
 
 import { useAuthStore } from "@/lib/store/useAuthStore";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
+
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -15,8 +16,8 @@ import {
   Clock,
   Sparkles,
 } from "lucide-react";
-import Link from "next/link";
 import { cn } from "@/lib/utils";
+
 
 export default function CandidateDashboard() {
   const { user } = useAuthStore();
@@ -99,13 +100,14 @@ export default function CandidateDashboard() {
           <h1 className="text-3xl md:text-4xl font-bold tracking-tight">
             Good morning, {user?.fullName?.split(" ")[0]}! 👋
           </h1>
-          <p className="text-primary-foreground/90 text-lg">
-            You have{" "}
-            <span className="font-bold underline decoration-secondary">
-              2 interviews pending
-            </span>{" "}
-            this week. You're doing great!
-          </p>
+            <p className="text-primary-foreground/90 text-lg">
+              You have{" "}
+              <span className="font-bold underline decoration-secondary">
+                2 interviews pending
+              </span>{" "}
+              this week. You&apos;re doing great!
+            </p>
+
           <div className="pt-4 space-y-2">
             <div className="flex justify-between text-sm font-medium">
               <span>Profile Completion</span>
