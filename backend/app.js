@@ -8,7 +8,9 @@ const connectDB = require('./Config/Database/connection');
 
 const userRoutes = require('./Routes/User.routes');
 const companyRoutes = require('./Routes/Company.routes');
+const candidateRoutes = require('./Routes/Candidate.Profiles.routes');
 const errorHandler = require('./Middlewares/error.middleware');
+
 
 const app = express();
 
@@ -55,6 +57,8 @@ app.get('/api/v1/health', (req, res) => {
 
 app.use('/api/v1/users', userRoutes);
 app.use('/api/v1/companies', companyRoutes);
+app.use('/api/v1/candidates', candidateRoutes);
+
 
 // Global Error Handler
 app.use(errorHandler);
