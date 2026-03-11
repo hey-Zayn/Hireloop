@@ -71,6 +71,11 @@ const candidateProfileSchema = new mongoose.Schema({
         trim: true,
         default: ""
     },
+    banner: {
+        type: String,
+        trim: true,
+        default: ""
+    },
     skills: {
         type: [String],
         default: []

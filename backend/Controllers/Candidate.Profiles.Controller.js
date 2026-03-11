@@ -475,3 +475,113 @@ exports.deleteProject = async (req, res, next) => {
     }
 };
 
+
+/**
+ * @desc    Upload profile banner
+ * @route   POST /api/v1/candidates/banner/upload
+ * @access  Private
+ */
+exports.uploadBanner = async (req, res, next) => {
+    try {
+        if (!req.file) {
+            return res.status(400).json({
+                success: false,
+                message: "Please upload an image"
+            });
+        }
+
+        const cloudinary = require("../Config/Cloudinary/cloudinary");
+        const profile = await CandidateProfile.findOne({ userId: req.user._id });
+
+        if (!profile) {
+            return res.status(404).json({
+                success: false,
+                message: "Profile not found"
+            });
+        }
+
+        const streamUpload = (req) => {
+            return new Promise((resolve, reject) => {
+                let stream = cloudinary.uploader.upload_stream(
+                    { folder: "hireloop/banners" },
+                    (error, result) => {
+                        if (result) resolve(result);
+                        else reject(error);
+                    }
+                );
+                stream.end(req.file.buffer);
+            });
+        };
+
+        const result = await streamUpload(req);
+
+        profile.banner = result.secure_url;
+        await profile.save();
+
+        res.status(200).json({
+            success: true,
+            message: "Banner uploaded successfully",
+            data: { banner: profile.banner }
+        });
+    } catch (error) {
+        next(error);
+    }
+};
+
+/**
+ * @desc    Delete profile banner
+ * @route   DELETE /api/v1/candidates/banner
+ * @access  Private
+ */
+exports.deleteBanner = async (req, res, next) => {
+    try {
+        const profile = await CandidateProfile.findOne({ userId: req.user._id });
+
+        if (!profile) {
+            return res.status(404).json({
+                success: false,
+                message: "Profile not found"
+            });
+        }
+
+        profile.banner = "";
+        await profile.save();
+
+        res.status(200).json({
+            success: true,
+            message: "Banner deleted successfully",
+            data: { banner: "" }
+        });
+    } catch (error) {
+        next(error);
+    }
+};
+
+/**
+ * @desc    Delete candidate resume
+ * @route   DELETE /api/v1/candidates/resume
+ * @access  Private
+ */
+exports.deleteResume = async (req, res, next) => {
+    try {
+        const profile = await CandidateProfile.findOne({ userId: req.user._id });
+
+        if (!profile) {
+            return res.status(404).json({
+                success: false,
+                message: "Profile not found"
+            });
+        }
+
+        profile.cvUrl = "";
+        await profile.save();
+
+        res.status(200).json({
+            success: true,
+            message: "Resume deleted successfully",
+            data: { cvUrl: "" }
+        });
+    } catch (error) {
+        next(error);
+    }
+};
