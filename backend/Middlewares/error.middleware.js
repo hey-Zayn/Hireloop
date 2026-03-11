@@ -1,8 +1,12 @@
+const logger = require('../libs/logger');
+
 /**
  * Centralized error handling middleware for the entire application.
  */
 const errorHandler = (err, req, res, next) => {
-    console.error('Error Stack:', err.stack);
+    if (process.env.NODE_ENV === 'development') {
+        logger.error(err);
+    }
 
     let statusCode = err.statusCode || 500;
     let message = err.message || 'Internal Server Error';
@@ -25,8 +29,14 @@ const errorHandler = (err, req, res, next) => {
         message = 'Invalid token. Please log in again.';
     }
 
+    if (err.name === 'TokenExpiredError') {
+        statusCode = 401;
+        message = 'Session expired. Please log in again.';
+    }
+
     res.status(statusCode).json({
         success: false,
+        status: err.status || 'error',
         message,
         stack: process.env.NODE_ENV === 'development' ? err.stack : undefined
     });

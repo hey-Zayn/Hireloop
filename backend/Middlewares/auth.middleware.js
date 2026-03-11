@@ -1,33 +1,30 @@
 const jwt = require('jsonwebtoken');
 const User = require('../Models/User.Model');
+const ApiError = require('../libs/ApiError');
+const catchAsync = require('../libs/catchAsync');
 
-const isAuthenticated = async (req, res, next) => {
-    try {
-        const token = req.cookies.token;
+const isAuthenticated = catchAsync(async (req, res, next) => {
+    const token = req.cookies.token;
 
-        if (!token) {
-            return res.status(401).json({ success: false, message: 'Unauthorized - No token provided' });
-        }
-
-        const decoded = jwt.verify(token, process.env.JWT_SECRET);
-
-        if (!decoded) {
-            return res.status(401).json({ success: false, message: 'Unauthorized - Invalid token' });
-        }
-
-        const user = await User.findById(decoded.userId).select('-password');
-
-        if (!user) {
-            return res.status(401).json({ success: false, message: 'User not found' });
-        }
-
-        req.user = user;
-        next();
-    } catch (error) {
-        console.error('Auth Middleware Error:', error);
-        return res.status(500).json({ success: false, message: 'Internal Server Error' });
+    if (!token) {
+        throw new ApiError(401, 'Unauthorized - No token provided');
     }
-};
+
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+    if (!decoded) {
+        throw new ApiError(401, 'Unauthorized - Invalid token');
+    }
+
+    const user = await User.findById(decoded.userId).select('-password');
+
+    if (!user) {
+        throw new ApiError(401, 'User not found');
+    }
+
+    req.user = user;
+    next();
+});
 
 const authorizeRoles = (...roles) => {
     return (req, res, next) => {

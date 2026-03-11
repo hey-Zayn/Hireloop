@@ -10,7 +10,9 @@ const {
 const {
     registerValidation,
     loginValidation,
-    resetPasswordValidation
+    resetPasswordValidation,
+    verifyEmailValidation,
+    forgotPasswordValidation
 } = require('../Validations/auth.validation');
 const validate = require('../Middlewares/validator.middleware');
 const { isAuthenticated, authorizeRoles } = require('../Middlewares/auth.middleware');
@@ -19,10 +21,10 @@ const router = express.Router();
 
 // Routes
 router.post('/register', registerValidation, validate, register);
-router.post('/verify-email', verifyEmail);
+router.post('/verify-email', verifyEmailValidation, validate, verifyEmail);
 router.post('/login', loginValidation, validate, login);
 router.post('/logout', logout);
-router.post('/forgot-password', forgotPassword);
+router.post('/forgot-password', forgotPasswordValidation, validate, forgotPassword);
 router.post('/reset-password', resetPasswordValidation, validate, resetPassword);
 
 // Example protected routes
