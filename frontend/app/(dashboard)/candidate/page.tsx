@@ -17,10 +17,33 @@ import {
   Sparkles,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { useProfileStore } from "@/lib/store/useProfileStore";
 
 export default function CandidateDashboard() {
   const { user } = useAuthStore();
+  const { profile, getProfile, isLoading: isProfileLoading } = useProfileStore();
+  const router = useRouter();
+
+  useEffect(() => {
+    getProfile();
+  }, [getProfile]);
+
+  useEffect(() => {
+    if (!isProfileLoading && !profile) {
+      router.push("/candidate/setup");
+    }
+  }, [profile, isProfileLoading, router]);
+
+  if (isProfileLoading) {
+    return (
+      <div className="flex h-[80vh] items-center justify-center">
+        <Sparkles className="size-12 animate-pulse text-primary" />
+      </div>
+    );
+  }
+
 
   const stats = [
     {
@@ -94,7 +117,8 @@ export default function CandidateDashboard() {
   return (
     <div className="space-y-8 animate-in fade-in duration-500">
       {/* Welcome Banner */}
-      <section className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-primary to-primary/80 p-8 text-primary-foreground shadow-2xl">
+      <section className="relative overflow-hidden rounded-3xl bg-linear-to-r from-primary to-primary/80 p-8 text-primary-foreground shadow-2xl">
+
         <Sparkles className="absolute top-4 right-4 size-24 text-white/10 -rotate-12" />
         <div className="relative z-10 space-y-4 max-w-2xl">
           <h1 className="text-3xl md:text-4xl font-bold tracking-tight">

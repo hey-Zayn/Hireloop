@@ -4,6 +4,9 @@ const { sendVerificationEmail, sendPasswordResetEmail } = require('../libs/email
 const crypto = require('crypto');
 const catchAsync = require('../libs/catchAsync');
 const ApiError = require('../libs/ApiError');
+const cloudinary = require('../Config/Cloudinary/cloudinary');
+const streamifier = require('streamifier');
+
 
 // Register User
 const register = catchAsync(async (req, res) => {
@@ -127,11 +130,72 @@ const resetPassword = catchAsync(async (req, res) => {
     res.status(200).json({ success: true, message: 'Password reset successful' });
 });
 
+// Update Avatar
+const updateAvatar = catchAsync(async (req, res) => {
+    if (!req.file) {
+        throw new ApiError(400, "Please upload an image");
+    }
+
+    const user = await User.findById(req.user._id);
+    if (!user) {
+        throw new ApiError(404, "User not found");
+    }
+
+    const uploadStream = cloudinary.uploader.upload_stream(
+        { folder: "hireloop/avatars" },
+        async (error, result) => {
+            if (error) {
+                return res.status(500).json({ success: false, message: "Cloudinary upload failed" });
+            }
+            user.avatar = result.secure_url;
+            await user.save();
+            res.status(200).json({
+                success: true,
+                message: "Avatar updated successfully",
+                avatar: user.avatar
+            });
+        }
+    );
+
+    streamifier.createReadStream(req.file.buffer).pipe(uploadStream);
+});
+
+// Update User Info
+const updateUserInfo = catchAsync(async (req, res) => {
+    const { fullName, phone } = req.body;
+    
+    const user = await User.findById(req.user._id);
+    if (!user) {
+        throw new ApiError(404, "User not found");
+    }
+
+    if (fullName) user.fullName = fullName;
+    if (phone !== undefined) user.phone = phone;
+
+    await user.save();
+
+    res.status(200).json({
+        success: true,
+        message: "User info updated successfully",
+        user: {
+            id: user._id,
+            fullName: user.fullName,
+            email: user.email,
+            role: user.role,
+            avatar: user.avatar,
+            phone: user.phone
+        }
+    });
+});
+
 module.exports = {
     register,
     verifyEmail,
     login,
     logout,
     forgotPassword,
-    resetPassword
+    resetPassword,
+    updateAvatar,
+    updateUserInfo
 };
+

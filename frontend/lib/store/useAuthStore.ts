@@ -7,7 +7,9 @@ interface User {
     email: string;
     role: string;
     avatar?: string;
+    phone?: string;
     companyId?: string;
+
 }
 
 
@@ -25,6 +27,9 @@ interface AuthState {
     verifyEmail: (payload: { email: string; code: string }) => Promise<void>;
     forgotPassword: (email: string) => Promise<void>;
     resetPassword: (payload: { token: string; newPassword: string }) => Promise<void>;
+    updateAvatar: (file: File) => Promise<void>;
+    updateUser: (payload: Record<string, unknown>) => Promise<void>;
+
 
     checkAuth: () => Promise<void>;
     clearError: () => void;
@@ -149,7 +154,49 @@ export const useAuthStore = create<AuthState>((set) => ({
         }
     },
 
+    updateAvatar: async (file: File) => {
+        set({ isLoading: true, error: null });
+        try {
+            const formData = new FormData();
+            formData.append("avatar", file);
+            const response = await axiosInstance.put("/users/avatar", formData, {
+                headers: { "Content-Type": "multipart/form-data" }
+            });
+            set((state) => ({
+                user: state.user ? { ...state.user, avatar: response.data.avatar } : null,
+                isLoading: false,
+                message: response.data.message
+            }));
+        } catch (error) {
+            const err = error as { response?: { data?: { message?: string } } };
+            set({
+                error: err.response?.data?.message || "Error updating avatar",
+                isLoading: false,
+            });
+            throw error;
+        }
+    },
+
+    updateUser: async (payload: Record<string, unknown>) => {
+        set({ isLoading: true, error: null });
+        try {
+            const response = await axiosInstance.put("/users/update", payload);
+            set({
+                user: response.data.user,
+                isLoading: false,
+                message: response.data.message
+            });
+        } catch (error) {
+            const err = error as { response?: { data?: { message?: string } } };
+            set({
+                error: err.response?.data?.message || "Error updating user info",
+                isLoading: false,
+            });
+            throw error;
+        }
+    },
 
     clearError: () => set({ error: null }),
+
     clearMessage: () => set({ message: null }),
 }));

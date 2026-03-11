@@ -34,8 +34,10 @@ exports.upsertProfile = async (req, res, next) => {
     try {
         const profileData = {
             ...req.body,
+            phone: req.body.phone,
             userId: req.user._id
         };
+
 
         // Use findOneAndUpdate with upsert to create or update
         const profile = await CandidateProfile.findOneAndUpdate(
@@ -263,3 +265,213 @@ exports.deleteExperience = async (req, res, next) => {
         next(error);
     }
 };
+
+/**
+ * @desc    Upload candidate resume
+ * @route   POST /api/v1/candidates/resume/upload
+ * @access  Private
+ */
+exports.uploadResume = async (req, res, next) => {
+    try {
+        if (!req.file) {
+            return res.status(400).json({
+                success: false,
+                message: "Please upload a file"
+            });
+        }
+
+        const cloudinary = require("../Config/Cloudinary/cloudinary");
+        const profile = await CandidateProfile.findOne({ userId: req.user._id });
+
+        if (!profile) {
+            return res.status(404).json({
+                success: false,
+                message: "Profile not found"
+            });
+        }
+
+        // Upload to Cloudinary using buffer
+        const streamUpload = (req) => {
+            return new Promise((resolve, reject) => {
+                let stream = cloudinary.uploader.upload_stream(
+                    { 
+                        folder: "hireloop/resumes",
+                        resource_type: "auto"
+                    },
+                    (error, result) => {
+                        if (result) {
+                            resolve(result);
+                        } else {
+                            reject(error);
+                        }
+                    }
+                );
+                stream.end(req.file.buffer);
+            });
+        };
+
+        const result = await streamUpload(req);
+
+        profile.cvUrl = result.secure_url;
+        await profile.save();
+
+        res.status(200).json({
+            success: true,
+            message: "Resume uploaded successfully",
+            data: {
+                cvUrl: profile.cvUrl
+            }
+        });
+    } catch (error) {
+        next(error);
+    }
+};
+
+/**
+ * @desc    Add portfolio project
+ * @route   POST /api/v1/candidates/project
+ * @access  Private
+ */
+exports.addProject = async (req, res, next) => {
+    try {
+        const profile = await CandidateProfile.findOne({ userId: req.user._id });
+
+        if (!profile) {
+            return res.status(404).json({
+                success: false,
+                message: "Profile not found"
+            });
+        }
+
+        const projectData = { ...req.body };
+
+        if (req.file) {
+            const cloudinary = require("../Config/Cloudinary/cloudinary");
+            const streamUpload = (req) => {
+                return new Promise((resolve, reject) => {
+                    let stream = cloudinary.uploader.upload_stream(
+                        { folder: "hireloop/projects" },
+                        (error, result) => {
+                            if (result) resolve(result);
+                            else reject(error);
+                        }
+                    );
+                    stream.end(req.file.buffer);
+                });
+            };
+            const result = await streamUpload(req);
+            projectData.image = result.secure_url;
+        }
+
+        if (typeof projectData.technologies === 'string') {
+            projectData.technologies = projectData.technologies.split(',').map(s => s.trim());
+        }
+
+        profile.projects.unshift(projectData);
+        await profile.save();
+
+        res.status(201).json({
+            success: true,
+            message: "Project added successfully",
+            data: profile.projects
+        });
+    } catch (error) {
+        next(error);
+    }
+};
+
+/**
+ * @desc    Update portfolio project
+ * @route   PUT /api/v1/candidates/project/:id
+ * @access  Private
+ */
+exports.updateProject = async (req, res, next) => {
+    try {
+        const profile = await CandidateProfile.findOne({ userId: req.user._id });
+
+        if (!profile) {
+            return res.status(404).json({
+                success: false,
+                message: "Profile not found"
+            });
+        }
+
+        const projectIndex = profile.projects.findIndex(p => p._id.toString() === req.params.id);
+
+        if (projectIndex === -1) {
+            return res.status(404).json({
+                success: false,
+                message: "Project not found"
+            });
+        }
+
+        const projectData = { ...req.body };
+
+        if (req.file) {
+            const cloudinary = require("../Config/Cloudinary/cloudinary");
+            const streamUpload = (req) => {
+                return new Promise((resolve, reject) => {
+                    let stream = cloudinary.uploader.upload_stream(
+                        { folder: "hireloop/projects" },
+                        (error, result) => {
+                            if (result) resolve(result);
+                            else reject(error);
+                        }
+                    );
+                    stream.end(req.file.buffer);
+                });
+            };
+            const result = await streamUpload(req);
+            projectData.image = result.secure_url;
+        }
+
+        if (projectData.technologies && typeof projectData.technologies === 'string') {
+            projectData.technologies = projectData.technologies.split(',').map(s => s.trim());
+        }
+
+        profile.projects[projectIndex] = {
+            ...profile.projects[projectIndex]._doc,
+            ...projectData
+        };
+
+        await profile.save();
+
+        res.status(200).json({
+            success: true,
+            message: "Project updated successfully",
+            data: profile.projects
+        });
+    } catch (error) {
+        next(error);
+    }
+};
+
+/**
+ * @desc    Delete portfolio project
+ * @route   DELETE /api/v1/candidates/project/:id
+ * @access  Private
+ */
+exports.deleteProject = async (req, res, next) => {
+    try {
+        const profile = await CandidateProfile.findOne({ userId: req.user._id });
+
+        if (!profile) {
+            return res.status(404).json({
+                success: false,
+                message: "Profile not found"
+            });
+        }
+
+        profile.projects = profile.projects.filter(p => p._id.toString() !== req.params.id);
+        await profile.save();
+
+        res.status(200).json({
+            success: true,
+            message: "Project deleted successfully",
+            data: profile.projects
+        });
+    } catch (error) {
+        next(error);
+    }
+};
+
