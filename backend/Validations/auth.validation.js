@@ -17,8 +17,21 @@ const resetPasswordValidation = [
     body('newPassword').isLength({ min: 6 }).withMessage('New password must be at least 6 characters long'),
 ];
 
+const verifyEmailValidation = [
+    body('email').isEmail().withMessage('Valid email is required').normalizeEmail(),
+    body('code')
+        .isNumeric().withMessage('Verification code must be numeric')
+        .isLength({ min: 6, max: 6 }).withMessage('Verification code must be exactly 6 digits'),
+];
+
+const forgotPasswordValidation = [
+    body('email').isEmail().withMessage('Valid email is required').normalizeEmail(),
+];
+
 module.exports = {
     registerValidation,
     loginValidation,
-    resetPasswordValidation
+    resetPasswordValidation,
+    verifyEmailValidation,
+    forgotPasswordValidation
 };
