@@ -3,6 +3,9 @@ const {
     addExperience,
     updateExperience,
     deleteExperience,
+    uploadBanner,
+    deleteBanner,
+    deleteResume,
     uploadResume,
     addProject,
     updateProject,
@@ -28,6 +31,9 @@ router.use(isAuthenticated);
 router.get("/profile", getProfile);
 router.post("/profile", upsertProfile);
 router.post("/resume/upload", upload.single("resume"), uploadResume);
+router.delete("/resume", deleteResume);
+router.post("/banner/upload", upload.single("banner"), uploadBanner);
+router.delete("/banner", deleteBanner);
 
 
 // Education CRUD

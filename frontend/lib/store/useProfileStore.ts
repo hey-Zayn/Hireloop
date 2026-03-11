@@ -38,6 +38,7 @@ export interface CandidateProfile {
     headline: string;
     bio: string;
     cvUrl: string;
+    banner: string;
     skills: string[];
     experienceYears: number;
     location: string;
@@ -72,6 +73,11 @@ interface ProfileState {
     deleteExperience: (id: string) => Promise<void>;
     
     uploadResume: (file: File) => Promise<void>;
+    deleteResume: () => Promise<void>;
+    
+    uploadBanner: (file: File) => Promise<void>;
+    deleteBanner: () => Promise<void>;
+
     addProject: (formData: FormData) => Promise<void>;
     updateProject: (id: string, formData: FormData) => Promise<void>;
     deleteProject: (id: string) => Promise<void>;
@@ -242,7 +248,58 @@ export const useProfileStore = create<ProfileState>((set) => ({
             const err = error as { response?: { status?: number; data?: { message?: string } } };
             set({
                 error: err.response?.data?.message || "Error uploading resume",
+                isLoading: false,
+            });
+            throw error;
+        }
+    },
 
+    deleteResume: async () => {
+        set({ isLoading: true, error: null });
+        try {
+            await axiosInstance.delete("/candidates/resume");
+            const response = await axiosInstance.get("/candidates/profile");
+            set({ profile: response.data.data, isLoading: false });
+        } catch (error) {
+            const err = error as { response?: { status?: number; data?: { message?: string } } };
+            set({
+                error: err.response?.data?.message || "Error deleting resume",
+                isLoading: false,
+            });
+            throw error;
+        }
+    },
+
+    uploadBanner: async (file: File) => {
+        set({ isLoading: true, error: null });
+        try {
+            const formData = new FormData();
+            formData.append("banner", file);
+            await axiosInstance.post("/candidates/banner/upload", formData, {
+                headers: { "Content-Type": "multipart/form-data" }
+            });
+            const response = await axiosInstance.get("/candidates/profile");
+            set({ profile: response.data.data, isLoading: false });
+        } catch (error) {
+            const err = error as { response?: { status?: number; data?: { message?: string } } };
+            set({
+                error: err.response?.data?.message || "Error uploading banner",
+                isLoading: false,
+            });
+            throw error;
+        }
+    },
+
+    deleteBanner: async () => {
+        set({ isLoading: true, error: null });
+        try {
+            await axiosInstance.delete("/candidates/banner");
+            const response = await axiosInstance.get("/candidates/profile");
+            set({ profile: response.data.data, isLoading: false });
+        } catch (error) {
+            const err = error as { response?: { status?: number; data?: { message?: string } } };
+            set({
+                error: err.response?.data?.message || "Error deleting banner",
                 isLoading: false,
             });
             throw error;
