@@ -24,8 +24,10 @@ const projectSchema = new mongoose.Schema({
     title: { type: String, required: true, trim: true },
     description: { type: String, trim: true },
     link: { type: String, trim: true },
+    image: { type: String, trim: true },
     technologies: [String]
 });
+
 
 const certificationSchema = new mongoose.Schema({
     name: { type: String, required: true, trim: true },
@@ -43,7 +45,13 @@ const candidateProfileSchema = new mongoose.Schema({
         required: true,
         unique: true
     },
+    phone: {
+        type: String,
+        trim: true,
+        default: ""
+    },
     headline: {
+
         type: String,
         required: [true, "Professional headline is required"],
         trim: true

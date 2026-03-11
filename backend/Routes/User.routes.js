@@ -5,8 +5,12 @@ const {
     login,
     logout,
     forgotPassword,
-    resetPassword
+    resetPassword,
+    updateAvatar,
+    updateUserInfo
 } = require('../Controllers/User.Controller');
+const upload = require('../Middlewares/upload.middleware');
+
 const {
     registerValidation,
     loginValidation,
@@ -36,4 +40,7 @@ router.get('/admin-dashboard', isAuthenticated, authorizeRoles('admin'), (req, r
     res.status(200).json({ success: true, message: 'Welcome Admin' });
 });
 
-module.exports = router;
+router.put('/avatar', isAuthenticated, upload.single('avatar'), updateAvatar);
+router.put('/update', isAuthenticated, updateUserInfo);
+
+module.exports = router;
