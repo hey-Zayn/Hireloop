@@ -32,9 +32,12 @@ export default function LoginPage() {
       await login({ email, password });
       toast.success("Welcome back!");
       router.push("/");
-    } catch (error: any) {
-      toast.error(error.response?.data?.message || "Invalid credentials");
+    } catch (error) {
+      const err = error as { response?: { data?: { message?: string } } };
+      toast.error(err.response?.data?.message || "Invalid credentials");
     }
+
+
   };
 
   return (
@@ -109,7 +112,8 @@ export default function LoginPage() {
                 )}
               </Button>
               <p className="text-sm text-center text-muted-foreground">
-                Don't have an account?{" "}
+                Don&apos;t have an account?{" "}
+
                 <Link
                   href="/signup"
                   className="font-semibold text-primary underline underline-offset-4"

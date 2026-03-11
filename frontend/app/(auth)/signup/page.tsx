@@ -43,9 +43,12 @@ export default function SignupPage() {
         "Registration successful! Please check your email for the verification code.",
       );
       router.push("/verify-email");
-    } catch (error: any) {
-      toast.error(error.response?.data?.message || "Something went wrong");
+    } catch (error) {
+      const err = error as { response?: { data?: { message?: string } } };
+      toast.error(err.response?.data?.message || "Something went wrong");
     }
+
+
   };
 
   return (

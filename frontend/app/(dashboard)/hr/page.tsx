@@ -18,12 +18,12 @@ import {
   UserPlus,
   Trophy,
   Plus,
-  Mail,
   BarChart3,
   Clock,
   ChevronRight,
   TrendingUp,
 } from "lucide-react";
+
 import {
   BarChart,
   Bar,
@@ -35,11 +35,9 @@ import {
   AreaChart,
   Area,
 } from "recharts";
-import {
-  ChartContainer,
-  ChartTooltip,
-  ChartTooltipContent,
-} from "@/components/ui/chart";
+
+
+
 
 const stats = [
   {
@@ -132,8 +130,9 @@ export default function HRDashboard() {
             HR Command Center
           </h1>
           <p className="text-muted-foreground mt-1">
-            Welcome back, {user?.fullName}. Here's what's happening today.
+            Welcome back, {user?.fullName}. Here&apos;s what&apos;s happening today.
           </p>
+
         </div>
         <div className="flex items-center gap-3">
           <Button

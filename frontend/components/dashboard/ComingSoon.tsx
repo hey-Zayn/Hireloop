@@ -19,9 +19,10 @@ export default function ComingSoonPage() {
             {pageName} <span className="text-primary">Coming Soon</span>
           </h1>
           <p className="text-muted-foreground text-lg">
-            We're working hard to bring you the best hiring experience. Stay
+            We&apos;re working hard to bring you the best hiring experience. Stay
             tuned for updates!
           </p>
+
           <div className="flex items-center justify-center gap-2 text-primary font-medium">
             <Sparkles className="size-5" />
             <span>Building HireLoop...</span>

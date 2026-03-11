@@ -35,9 +35,10 @@ class ErrorBoundary extends Component<Props, State> {
           </div>
           <h1 className="text-2xl font-bold mb-2">Something went wrong</h1>
           <p className="text-muted-foreground mb-8 max-w-md">
-            The application encountered an unexpected error. We've been notified
+            The application encountered an unexpected error. We&apos;ve been notified
             and are working on a fix.
           </p>
+
           <div className="flex gap-4">
             <Button
               variant="outline"
