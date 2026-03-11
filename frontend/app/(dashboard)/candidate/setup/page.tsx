@@ -85,6 +85,7 @@ export default function OnboardingPage() {
 
   useEffect(() => {
     if (profile && !isInitialized) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setFormData({
         phone: profile.phone || "",
         headline: profile.headline || "",
