@@ -72,7 +72,7 @@ const login = async (req, res, next) => {
         }
 
         generateTokenAndSetCookie(res, user._id);
-        user.lastLogin = Date.now();
+        user.lastLogin = new Date();
         await user.save();
 
         res.status(200).json({
@@ -82,7 +82,8 @@ const login = async (req, res, next) => {
                 fullName: user.fullName,
                 email: user.email,
                 role: user.role,
-                avatar: user.avatar
+                avatar: user.avatar,
+                companyId: user.companyId
             }
         });
     } catch (error) {
